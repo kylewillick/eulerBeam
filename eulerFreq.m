@@ -29,7 +29,7 @@ z = linspace(0,1,spatialElements);
 % Begin Calculations
 % Start with basic analytic estimate based on tension limit
 step = 1:stepCount;
-freqs = NumericFreq( L, diameter, T, stepCount );
+freqs = quickFreq( L, diameter, T, stepCount );
 freqStart = freqs(end); % Always start low, so increasing will find soln
 threshold = epsilon*freqStart;
 threshold = 1;

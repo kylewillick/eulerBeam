@@ -12,8 +12,9 @@ function [ omega0, omega0F, deltaOmega, tension, tensionF, xMax, xMaxF, deltaX0,
 %   Q - quality factor of mechanical resonance
 %   Vg - DC gate voltage applied
 %   VgAC - the magnitude of the AC signal applied to drive CNT
+%   vBias - voltage that would be applied to source of CNT
 %   h - separation from gate to CNT
-%   cRatio - the ratio between capacitances. C_g / C_total
+%   cRatio - the ratio between capacitances (1/leverArm). C_total/C_g
 %   dBdz - the magnitude of magnetic field gradient along perpendicular
 %      direction
 %   Sz - the change in spin of the attached SMM (force change is g mu_b Sz
