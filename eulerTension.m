@@ -1,4 +1,4 @@
-function [ T, maxx, step, x, z, dxdz, K_electric, F_mag ] = eulerTension( L, diameter, Q, Vg, Vbias, h,cRatio, dBdz, Sz, TPrime_0, zPrime_0, stepCount )
+function [ T, maxx, step, x, z, dxdz, K_electric, F_mag ] = eulerTension( L, diameter, Q, Vg, Vbias, h,cRatio, dBdz, Sz, TPrime_0, zPrime_0, stepCount, varargin )
 %Calculates tension in CNT using Euler Beam analtyic expression with
 %constant T and recursively approximating T
 % Note TPrime_0 is residual, built in CNT tension (due to fabrication), and
@@ -19,6 +19,24 @@ xiL_LowerLimit = 3e-2;
 % Load fixed CNT and SMM parameters
 load FixedParameters.mat
 
+% Read the varargin
+effectiveCapLengthRatio = 1;
+if ~isempty(varargin)
+    nVarIn = length(varargin{1});
+    if rem(nVarIn,2) == 1
+        error('Expects an even number of varargin, using identifier followed by value');
+    else
+        for k = 1 : nVarIn/2
+            tag = varargin{1}{2*k-1};
+            if strcmp(tag,'effCapLenRatio')
+                effectiveCapLengthRatio = varargin{1}{2*k};
+            else
+                error('Unrecognized varargin tag');
+            end
+        end
+    end
+end
+
 % Calculated parameters
 rOut = diameter/2;
 rIn = rOut - wallThickness;
@@ -28,7 +46,7 @@ A = pi * (rOut.^2);
 % momentInertia = (pi/4)*(rOut.^4 - rIn.^4);
 momentInertia = (pi/4)*(rOut.^4);
 lengthDensity = pi*diameter*rhoA;
-Cg = 4*pi*epsilon0*L./(2*log(2*h./rOut));
+Cg = 4*pi*epsilon0*L*effectiveCapLengthRatio./(2*log(2*h./rOut));
 C = cRatio * Cg;
 CL = (C-Cg)/2;
 

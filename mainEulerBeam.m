@@ -1,10 +1,12 @@
-function [ omega0, omega0F, deltaOmega, tension, tensionF, xMax, xMaxF, deltaX0, VgDeltaX0 ] = mainEulerBeam( L, diameter, Q, Vg, VgAC, Vbias, h, cRatio, dBdz, Sz, T_0, pos, TStepCount, fStepCount)
+function [ omega0, omega0F, deltaOmega, tension, tensionF, xMax, xMaxF, deltaX0, VgDeltaX0 ] = mainEulerBeam( L, diameter, Q, Vg, VgAC, Vbias, h, cRatio, dBdz, Sz, T_0, pos, TStepCount, fStepCount, varargin)
 % Calculate resonant frequency and frequency shifts of CNT beam with small
 % applied force (by way of Sz change in dBdz)
 % Outputs will always be arrays with dimensions as needed in order of input
 % variables
 %
 % All units are SI (eg, L is in m)
+%
+% eg call command: [ omega0, omega0F, deltaOmega, tension, tensionF, xMax, xMaxF, deltaX0, VgDeltaX0 ] = mainEulerBeam( L, diameter, Q, Vg, VgAC, Vbias, h, cRatio, dBdz, Sz, TPrime_0, pos, TStepCount, fStepCount, 'effCapLenRatio',0.3);
 %
 % INPUT
 %   L - length of suspended CNT section
@@ -82,7 +84,7 @@ for Lk = 1:LDim
                                             for posk = 1:posDim
         %                                     fprintf('Starting Calculations: L-%d/%d, d-%d/%d, Q-%d/%d, Vg-%d/%d, Vb-%d/%d, h-%d/%d, c-%d/%d, dBdz-%d/%d, Sz-%d/%d\n',Lk,LDim,dk,dDim,Qk,QDim,Vgk,VgDim,Vbk,VbDim,hk,hDim,ck,cDim,dBk,dBDim,Szk,SzDim);
                                                 setDesktopStatus(sprintf('Starting Calculations: L-%d/%d, d-%d/%d, Q-%d/%d, Vg-%d/%d, Vb-%d/%d, h-%d/%d, c-%d/%d, dBdz-%d/%d, Sz-%d/%d, T_0-%d/%d, pos-%d/%d\n',Lk,LDim,dk,dDim,Qk,QDim,Vgk,VgDim,Vbk,VbDim,hk,hDim,ck,cDim,dBk,dBDim,Szk,SzDim,T0k,T0Dim,posk,posDim));
-                                                [ T, tmpXmax, ~, ~,~,~,K_elec, F_mag ] = eulerTension( L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk), 0, T_0(T0k), pos(posk), TStepCount );
+                                                [ T, tmpXmax, ~, ~,~,~,K_elec, F_mag ] = eulerTension( L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk), 0, T_0(T0k), pos(posk), TStepCount, varargin);
                                                 if max(size(T)) == TStepCount
                                                     fprintf('Warning: Hit max step count in omega0 T calc at %d %d %d %d %d %d %d %d %d %d %d %d\n',Lk,dk,Qk,Vgk,ACk, Vbk, hk,ck,dBk,Szk,T0k,posk);
                                                     fprintf('Current Setting: L = %e, d = %e, Q = %e, Vg = %e, VgAC = %e, Vb = %e, h = %e, cRatio = %e, dBdz = %e, Sz = 0(forced), T_0 = %e, pos = %e\n', L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), VgAC(ACk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk),T_0(T0k),pos(posk));
@@ -95,7 +97,7 @@ for Lk = 1:LDim
                                                     fprintf('Current Setting: L = %e, d = %e, Q = %e, Vg = %e, VgAC = %e, Vb = %e, h = %e, cRatio = %e, dBdz = %e, Sz = 0(forced), T_0 = %e, pos = %e\n', L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), VgAC(ACk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk),T_0(T0k),pos(posk));
                                                 end
                                                 tmp1(Lk,dk,Qk,Vgk,ACk,Vbk,hk,ck,dBk,Szk,T0k,posk) = omega(end);
-                                                [ T, tmpXmaxF, ~, ~,~,~,K_elec, F_mag ] = eulerTension( L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk), Sz(Szk), T_0(T0k), pos(posk), TStepCount );
+                                                [ T, tmpXmaxF, ~, ~,~,~,K_elec, F_mag ] = eulerTension( L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk), Sz(Szk), T_0(T0k), pos(posk), TStepCount, varargin );
                                                 if max(size(T)) == TStepCount
                                                     fprintf('Warning: Hit max step count in omega0F T calc at %d %d %d %d %d %d %d %d %d %d %d %d\n',Lk,dk,Qk,Vgk,ACk, Vbk, hk,ck,dBk,Szk,T0k,posk);
                                                     fprintf('Current Setting: L = %e, d = %e, Q = %e, Vg = %e, VgAC = %e, Vb = %e, h = %e, cRatio = %e, dBdz = %e, Sz = %e, T_0 = %e, pos = %e\n', L(Lk) , diameter(dk), Q(Qk), Vg(Vgk), VgAC(ACk), Vbias(Vbk), h(hk),cRatio(ck), dBdz(dBk),Sz(Szk),T_0(T0k),pos(posk));
