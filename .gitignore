@@ -1,2 +1,5 @@
 # ignore matlab autosave files
 *.asv
+
+# ignore compiled python
+*.pyc

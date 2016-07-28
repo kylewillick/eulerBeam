@@ -120,6 +120,38 @@ def eulerFreq_(L=None,diameter=None,T=None,K_elec=None,F_mag=None,pos=None,stepC
         slowFactorCountdown=slowFactorCountdown - 1
         tmp[j]=soln
     return resFreq,step,soln,tmp,solverMatrix
+
+def quickFreq_(L=None,diameter=None,T=None,stepCount=None,*args,**kwargs):
+    varargin = cellarray(args)
+    nargin = 4-[L,diameter,T,stepCount].count(None)+len(args)
+
+    rOut=diameter / 2
+    rIn=rOut - wallThickness
+    mCNT=rhoA * 0.735 * pi * diameter * L
+    momentInertia=(pi / 4) * (rOut ** 4)
+    epsilon=1e-12
+    xi=sqrt_(T / (E * momentInertia))
+    step=arange_(1,stepCount)
+    if xi * L < 1:
+        freqStart=sqrt_(E * momentInertia / (mCNT / L)) * (22.38 / L ** 2 + 0.28 * xi ** 2)
+    else:
+        freqStart=sqrt_(E * momentInertia / (mCNT / L)) * (2 * pi / L ** 2 + pi * xi / L)
+    threshold=epsilon * freqStart
+    escapeIn=9999999
+    for k in step.reshape(-1):
+        _lambda=sqrt_(mCNT / (L * E * momentInertia)) * freqStart
+        yPlus=(L / sqrt_(2)) * sqrt_(sqrt_(xi ** 4 + 4 * _lambda ** 2) + xi ** 2)
+        yMinus=(L / sqrt_(2)) * sqrt_(sqrt_(xi ** 4 + 4 * _lambda ** 2) - xi ** 2)
+        soln=cosh_(yPlus) * cos_(yMinus) - (yPlus ** 2 - yMinus ** 2) / (2 * yPlus * yMinus) * sinh_(yPlus) * sin_(yMinus)
+        resFreq[k]=freqStart * (1 - (0.05 - 0.04 * k / stepCount) * (soln - 1) / exp_(yPlus))
+        freqStart=resFreq[k]
+        if k > 2 and abs_(resFreq[k] - resFreq[k - 1]) < threshold and escapeIn > 10:
+            escapeIn=3
+        if escapeIn < 1:
+            break
+        escapeIn=escapeIn - 1
+    return resFreq,step,soln
+
 def TacB4_calc_(k=None,m=None,fDc=None,fMag=None,a=None,*args,**kwargs):
     varargin = cellarray(args)
     nargin = 5-[k,m,fDc,fMag,a].count(None)+len(args)
